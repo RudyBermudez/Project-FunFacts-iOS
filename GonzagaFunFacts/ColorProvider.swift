@@ -11,7 +11,7 @@ import GameKit
 
 struct ColorProvider {
 	
-	let colors: [UIColor] = [
+	private let colors: [UIColor] = [
 		UIColor(red: 223/255.0, green: 86/255.0, blue: 94/255.0, alpha: 1.0), // red color
 		UIColor(red: 85/255.0, green: 176/255.0, blue: 112/255.0, alpha: 1.0), // green color
 		UIColor(red: 90/255.0, green: 187/255.0, blue: 181/255.0, alpha: 1.0), // teal color

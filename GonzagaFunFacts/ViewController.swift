@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Alamofire
 
 class ViewController: UIViewController {
 	
@@ -20,7 +19,7 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		getRandomFact()
+		updateDisplay()
 	}
 	
 	override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -28,39 +27,34 @@ class ViewController: UIViewController {
 	}
 	
 	@IBAction func buttonAction(_ sender: Any) {
-		getRandomFact()
+		updateDisplay()
 	}
 	
-	func getRandomFact() {
+	/** Updates the Display with a new color and a new fact
+	The color is selected by random color from the `ColorProvider`
+	The fact is pulled from the internet. If an error occurs, 
+	the fact will be pulled from the list in the codebase
+	
+	*/
+	func updateDisplay() {
 		
 		// Update the color of the view background and button text
 		let randomColor = colorProvider.getRandomColor()
 		self.view.backgroundColor = randomColor
 		showFunFactButton.tintColor = randomColor
 		
-		
-		// This is how we get facts from our web server
-		Alamofire.request("https://api.gumad.club:55555").validate().responseJSON { (response) in
-			/*
-			Note: This is not the best way of making a request nor is it the best place to put a request.
-			View Controllers are meant for updating data for the Views. It is not the best place to be
-			making HTTP Requests. In later sessions we will explore how to do this properly and we will
-			write our own Request library.
-			
-			For now this works...
-			*/
-			switch response.result {
-			case .success(let json):
-				guard let JSON = json as? [String: Any], let fact = JSON["fact"] as? String else {
-					print("Could not parse JSON")
-					return
-				}
-				self.funFactLabel.text = fact
+		// Attempt to update the factLabel with a fact from the internet
+		factProvider.getRandomFactFromInternet { (result) in
+			switch result {
+				
+			// If the request fails, error message is printed and fact is updated from codebase
 			case .failure(let error):
 				print(error)
+				self.funFactLabel.text = self.factProvider.getRandomFactFromCodebase()
 				
-				// Get a Fact from the factbook in the codebase
-				self.funFactLabel.text = self.factProvider.getRandomFact()
+			// If request succeeds, the fact is updated with the fact from the internet
+			case .success(let fact):
+				self.funFactLabel.text = fact
 			}
 		}
 	}
